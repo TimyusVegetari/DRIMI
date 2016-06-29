@@ -25,7 +25,7 @@
  * \file ToString.hpp
  * \brief Methods to convert numerics to strings.
  * \author Anthony Acroute
- * \version 0.2
+ * \version 0.3
  * \date 2015-2016
  *
  */
@@ -50,7 +50,15 @@ namespace drimi {
   /// \return String of the numeric value.
   ///
   ////////////////////////////////////////////////////////////
-  std::string ToString ( const GLuint& uiValue );
+  std::string ToString ( GLuint uiValue );
+
+  ////////////////////////////////////////////////////////////
+  /// \brief Converts int to string.
+  ///
+  /// \return String of the numeric value.
+  ///
+  ////////////////////////////////////////////////////////////
+  std::string ToString ( GLint iValue );
 
   ////////////////////////////////////////////////////////////
   /// \brief Converts float to string.
@@ -58,7 +66,7 @@ namespace drimi {
   /// \return String of the numeric value.
   ///
   ////////////////////////////////////////////////////////////
-  std::string ToString ( const GLfloat& fValue );
+  std::string ToString ( GLfloat fValue );
 
 } // namespace drimi
 
