@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // This file is part of DRIMI::Gui.
-// Copyright (C) 2013-2016 Acroute Anthony (ant110283@hotmail.fr)
+// Copyright (C) 2013-2017 Acroute Anthony (ant110283@hotmail.fr)
 //
 // DRIMI::Gui is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ drimi::Gui::TextLine::TextLine ( void ) :
   m_oBmpText            (),
   m_szText              (""),
   m_uiMaxTextSize       (16),
+  m_eTextAlign          (drimi::Gui::Style::Align::Center),
   // Cursor of the text line
   m_oBmpCursor          (),
   m_cCursor             (L'_'),
@@ -94,19 +95,23 @@ GLboolean drimi::Gui::TextLine::HandleEvent ( const drimi::Event::Type eEventTyp
 
 ////////////////////////////////////////////////////////////
 GLboolean drimi::Gui::TextLine::HandleTextUnicode ( const char cUnicode ) {
-  if (cUnicode >= 32 && m_szText.size () < m_uiMaxTextSize) {
+  if (cUnicode >= 32 && m_szText.size ()-1 < m_uiMaxTextSize) {
     m_szText.insert (m_uiCursorIndex, 1, cUnicode);
     m_oBmpText.SetString (m_szText);
-    m_oBmpText.SetOrigin (0.f, m_oBmpText.GetLocalBounds ().height / 2.f);
-    m_oBmpText.SetOrigin (m_oBmpText.GetLocalBounds ().width / 2.f, m_oBmpText.GetLocalBounds ().height / 2.f);
+    if (m_eTextAlign == drimi::Gui::Style::Align::Left)
+      m_oBmpText.SetOrigin (0.f, m_oBmpText.GetLocalBounds ().height / 2.f);
+    else if (m_eTextAlign == drimi::Gui::Style::Align::Center)
+      m_oBmpText.SetOrigin (m_oBmpText.GetLocalBounds ().width / 2.f, m_oBmpText.GetLocalBounds ().height / 2.f);
     // Update the cursor
     m_uiCursorIndex++;
   } else if (cUnicode == 8) { // backspace
     if (m_szText.size () > 0 && m_uiCursorIndex > 0) {
       m_szText.erase (m_uiCursorIndex-1, 1);
       m_oBmpText.SetString (m_szText);
-      m_oBmpText.SetOrigin (0.f, m_oBmpText.GetLocalBounds ().height / 2.f);
-      m_oBmpText.SetOrigin (m_oBmpText.GetLocalBounds ().width / 2.f, m_oBmpText.GetLocalBounds ().height / 2.f);
+      if (m_eTextAlign == drimi::Gui::Style::Align::Left)
+        m_oBmpText.SetOrigin (0.f, m_oBmpText.GetLocalBounds ().height / 2.f);
+      else if (m_eTextAlign == drimi::Gui::Style::Align::Center)
+        m_oBmpText.SetOrigin (m_oBmpText.GetLocalBounds ().width / 2.f, m_oBmpText.GetLocalBounds ().height / 2.f);
       // Update the cursor
       m_uiCursorIndex--;
     }
@@ -142,17 +147,14 @@ void drimi::Gui::TextLine::Draw ( sf::RenderTarget& sfTarget, sf::RenderStates s
 ////////////////////////////////////////////////////////////
 void drimi::Gui::TextLine::UpdateCursor ( void ) {
   // If edition is now impossible
-  if (m_szText.size () == m_uiMaxTextSize) {
+  if (m_szText.size ()-1 == m_uiMaxTextSize) {
     if (m_cCursor == L'_')
       m_cCursor = L'|';
   // If edition is now possible
   } else if (m_cCursor == L'|')
     m_cCursor = L'_';
   m_oBmpCursor.SetString (m_cCursor);
-  if (m_szText.size () == 0)
-    m_oBmpCursor.SetOrigin (m_oBmpCursor.GetLocalBounds ().width / 2.f, m_oBmpCursor.GetLocalBounds ().height / 2.f);
-  else
-    m_oBmpCursor.SetOrigin (0.f, 0.f);
+  m_oBmpCursor.SetOrigin (0.f, 0.f);
   sf::Vector2f sfCursorPos = m_oBmpText.FindCharacterPos (m_uiCursorIndex);
   m_oBmpCursor.setPosition (sfCursorPos);
 }
@@ -170,7 +172,7 @@ void drimi::Gui::TextLine::MoveCursorLeft ( void ) {
 ////////////////////////////////////////////////////////////
 void drimi::Gui::TextLine::MoveCursorRight ( void ) {
   // If the cursor isn't totaly to the right, update it
-  if (m_uiCursorIndex < m_szText.size ()) {
+  if (m_uiCursorIndex < m_szText.size ()-1) {
     m_uiCursorIndex++;
     // Update the cursor appearence
     UpdateCursor ();
@@ -195,12 +197,21 @@ void drimi::Gui::TextLine::AnimateCursor ( void ) {
 
 ////////////////////////////////////////////////////////////
 void drimi::Gui::TextLine::SetPosition ( GLfloat fX, GLfloat fY ) {
-	sf::FloatRect sfBounds = m_sfBackground.getLocalBounds ();
-  m_sfBackground.setOrigin (sf::Vector2f (sfBounds.width / 2.f, sfBounds.height / 2.f));
-	m_sfBackground.setPosition (fX, fY);
+  m_sfBackground.setPosition (fX, fY);
+	sf::FloatRect sfBounds = m_sfBackground.getGlobalBounds ();
 
-  m_oBmpText.SetOrigin (m_oBmpText.GetLocalBounds ().width / 2.f, m_oBmpText.GetLocalBounds ().height / 2.f);
-	m_oBmpText.setPosition (fX, fY);
+  if (m_eTextAlign == drimi::Gui::Style::Align::Left) {
+    m_oBmpText.SetOrigin (0.f, m_oBmpText.GetLocalBounds ().height / 2.f);
+    m_oBmpText.setPosition (5.f + sfBounds.left, sfBounds.top + sfBounds.height / 2.f);
+  } else if (m_eTextAlign == drimi::Gui::Style::Align::Center) {
+    m_oBmpText.SetOrigin (m_oBmpText.GetLocalBounds ().width / 2.f, m_oBmpText.GetLocalBounds ().height / 2.f);
+    m_oBmpText.setPosition (sfBounds.left + sfBounds.width / 2.f, sfBounds.top + sfBounds.height / 2.f);
+  }
+}
+
+////////////////////////////////////////////////////////////
+void drimi::Gui::TextLine::SetOrigin ( GLfloat fX, GLfloat fY ) {
+	m_sfBackground.setOrigin (sf::Vector2f (fX, fY));
 }
 
 ////////////////////////////////////////////////////////////
@@ -216,12 +227,31 @@ void drimi::Gui::TextLine::SetColor ( sf::Color sfTextColor ) {
 }
 
 ////////////////////////////////////////////////////////////
+void drimi::Gui::TextLine::SetMaxTextSize ( GLuint uiSize ) {
+  m_uiMaxTextSize = uiSize;
+  // Update the cursor appearence
+  UpdateCursor ();
+}
+
+////////////////////////////////////////////////////////////
 void drimi::Gui::TextLine::SetText ( const std::string& szText, drimi::BmpFont& oBmpFont ) {
-  m_szText                = szText;
+  if (szText.size () <= m_uiMaxTextSize)
+    m_szText = szText;
+  else
+    m_szText = szText.substr (0, m_uiMaxTextSize);
+  m_szText.push_back      ('\0');
   m_oBmpText.SetFont      (oBmpFont);
-  m_oBmpText.SetString    (szText);
+  m_oBmpText.SetString    (m_szText);
   m_oBmpCursor.SetFont    (oBmpFont);
   m_oBmpCursor.SetStyle   (sf::Text::Style::Bold);
+  m_uiCursorIndex         = m_szText.size ()-1;
+  // Update the cursor appearence
+  UpdateCursor ();
+}
+
+////////////////////////////////////////////////////////////
+void drimi::Gui::TextLine::SetTextAlign ( drimi::Gui::Style::Align eTextAlign ) {
+  m_eTextAlign = eTextAlign;
 }
 
 ////////////////////////////////////////////////////////////

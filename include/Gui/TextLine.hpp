@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // This file is part of DRIMI::Gui.
-// Copyright (C) 2013-2016 Acroute Anthony (ant110283@hotmail.fr)
+// Copyright (C) 2013-2017 Acroute Anthony (ant110283@hotmail.fr)
 //
 // DRIMI::Gui is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@
  * \file TextLine.hpp
  * \brief Class for the text line of the gui.
  * \author Anthony Acroute
- * \version 0.1
- * \date 2016
+ * \version 0.2
+ * \date 2016-2017
  *
  */
 
@@ -42,6 +42,7 @@
 #include <DRIMI/Gui/Component.hpp>
 #include <DRIMI/BitmapFont/BmpFont.hpp>
 #include <DRIMI/BitmapFont/BmpText.hpp>
+#include <DRIMI/Gui/Style.hpp>
 
 #include <SFML/Graphics/Sprite.hpp>
 
@@ -79,6 +80,7 @@ class TextLine : public Component {
     drimi::BmpText  m_oBmpText;
     std::string     m_szText;
     GLuint          m_uiMaxTextSize;
+    Style::Align    m_eTextAlign;
     // Cursor of the text line
     drimi::BmpText  m_oBmpCursor;
     char            m_cCursor;
@@ -213,6 +215,15 @@ class TextLine : public Component {
     void SetPosition ( GLfloat fX, GLfloat fY );
 
     ////////////////////////////////////////////////////////////
+    /// \brief Set the origin of the text line.
+    ///
+    /// \param uiX  The X value of the origin.
+    ///        uiY  The Y value of the origin.
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetOrigin ( GLfloat fX, GLfloat fY );
+
+    ////////////////////////////////////////////////////////////
     /// \brief Set the background texture.
     ///
     /// \param sfTexture    The texture of the background.
@@ -231,6 +242,14 @@ class TextLine : public Component {
     void SetColor ( sf::Color sfTextColor );
 
     ////////////////////////////////////////////////////////////
+    /// \brief Set the maximum characters can be entered in the text line.
+    ///
+    /// \param uiSize       The maximum characters.
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetMaxTextSize ( GLuint uiSize );
+
+    ////////////////////////////////////////////////////////////
     /// \brief Set the text of the text line.
     ///
     /// \param szText       The text of the text line.
@@ -238,6 +257,14 @@ class TextLine : public Component {
     ///
     ////////////////////////////////////////////////////////////
     void SetText ( const std::string& szText, drimi::BmpFont& oBmpFont );
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Set the alignement of the text.
+    ///
+    /// \param eTextAlign   The alignement of the text.
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetTextAlign ( drimi::Gui::Style::Align eTextAlign );
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the text of the text line.
